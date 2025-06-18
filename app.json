@@ -16,7 +16,12 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "com.faizan.timero",
+      "versionCode": 1,
       "permissions": [
+        "INTERNET",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.MODIFY_AUDIO_SETTINGS",
         "INTERNET",
         "android.permission.RECORD_AUDIO",
         "android.permission.MODIFY_AUDIO_SETTINGS"
@@ -33,11 +38,20 @@
     "plugins": [
       "expo-audio"
     ],
+    "updates": {
+      "enabled": true,
+      "fallbackToCacheTimeout": 0,
+      "checkAutomatically": "ON_LOAD",
+      "url": "https://u.expo.dev/7e2350e3-56d8-4694-b148-4245ee0db45a"
+    },
     "extra": {
       "eas": {
         "projectId": "7e2350e3-56d8-4694-b148-4245ee0db45a"
       }
     },
-    "owner": "faizan6942"
+    "owner": "faizan6942",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    }
   }
 }

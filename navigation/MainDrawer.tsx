@@ -41,14 +41,24 @@ export default function MainDrawer() {
       <Drawer.Screen name="Deen" component={DeenScreen} />
 
       <Drawer.Screen name="Challenges" component={ChallengeListScreen} />
-      <Drawer.Screen name="CreateChallenge" component={CreateChallengeScreen} />
+      {/* <Drawer.Screen name="CreateChallenge" component={CreateChallengeScreen} /> */}
+        <Drawer.Screen
+    name="CreateChallenge"
+    component={CreateChallengeScreen}
+    options={{ drawerItemStyle: { display: 'none' } }}
+  />
       <Drawer.Screen name="Stats" component={StatsScreen} />
 
-      <Drawer.Screen
+      {/* <Drawer.Screen
   name="ChallengeDetail"
   component={ChallengeDetailScreen}
   options={{ title: 'Challenge Detail (Temp)' }}
-/>
+/> */}
+  <Drawer.Screen
+    name="ChallengeDetail"
+    component={ChallengeDetailScreen}
+    options={{ drawerItemStyle: { display: 'none' } }}
+  />
 
     </Drawer.Navigator>
   );
