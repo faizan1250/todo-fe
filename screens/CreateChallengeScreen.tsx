@@ -13,6 +13,9 @@ import { Picker } from '@react-native-picker/picker';
 import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../context/AuthContext';
 import axiosInstance from '../api/AxiosInstance';
+import { useFocusEffect } from '@react-navigation/native';
+import { useCallback } from 'react';
+
 
 export default function CreateChallengeScreen() {
   const navigation = useNavigation();
@@ -23,6 +26,16 @@ export default function CreateChallengeScreen() {
   const [durationValue, setDurationValue] = useState('7');
   const [durationUnit, setDurationUnit] = useState('days');
   const [totalPoints, setTotalPoints] = useState('');
+  useFocusEffect(
+  useCallback(() => {
+    setTitle('');
+    setTotalHours('');
+    setDurationValue('7');
+    setDurationUnit('days');
+    setTotalPoints('');
+  }, [])
+);
+
 
   const handleCreate = async () => {
     if (!title || !totalHours || !durationValue || !totalPoints) {

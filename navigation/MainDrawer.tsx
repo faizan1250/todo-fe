@@ -4,7 +4,7 @@ import React from 'react';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 
 import HomeScreen from '../screens/HomeScreen';
-import TimerScreen from '../screens/TimerScreen';
+
 import DeenScreen from '../screens/DeenScreen';
 import ChallengeListScreen from '../screens/ChallengeListScreen';
 import CreateChallengeScreen from '../screens/CreateChallengeScreen';
@@ -37,7 +37,7 @@ export default function MainDrawer() {
       }}
     >
       <Drawer.Screen name="Home" component={HomeScreen} />
-      <Drawer.Screen name="Timer" component={TimerScreen} />
+      
       <Drawer.Screen name="Deen" component={DeenScreen} />
 
       <Drawer.Screen name="Challenges" component={ChallengeListScreen} />
