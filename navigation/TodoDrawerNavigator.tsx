@@ -116,7 +116,7 @@ export default function TodoDrawerNavigator() {
         }}
       />
 
-      <Drawer.Screen
+      {/* <Drawer.Screen
         name="MainApp"
         component={ReturnToMainApp}
         options={{
@@ -125,7 +125,7 @@ export default function TodoDrawerNavigator() {
             <Ionicons name="home-outline" size={size} color={color} />
           ),
         }}
-      />
+      /> */}
     </Drawer.Navigator>
   );
 }

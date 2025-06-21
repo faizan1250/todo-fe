@@ -427,6 +427,7 @@ import { TodoStackParamList } from '../../navigation/TodoStackNavigator';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
+import NavHome from '../../components/NavHome';
 
 const STATUS_TABS = ['All', 'Todo', 'In-Progress', 'Done', 'Archived'];
 const PRIORITY_COLORS = {
@@ -766,6 +767,7 @@ export default function TodoHome() {
           </View>
         </View>
       </Modal>
+      <NavHome />
     </View>
   );
 }
