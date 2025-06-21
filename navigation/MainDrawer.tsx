@@ -10,6 +10,9 @@ import ChallengeListScreen from '../screens/ChallengeListScreen';
 import CreateChallengeScreen from '../screens/CreateChallengeScreen';
 import ChallengeDetailScreen from '../screens/ChallengeDetailScreen';
 import StatsScreen from '../screens/StatsScreen';
+import TodoStackNavigator from './TodoStackNavigator';
+
+import { Ionicons } from '@expo/vector-icons';
 
 
 const Drawer = createDrawerNavigator();
@@ -49,16 +52,13 @@ export default function MainDrawer() {
   />
       <Drawer.Screen name="Stats" component={StatsScreen} />
 
-      {/* <Drawer.Screen
-  name="ChallengeDetail"
-  component={ChallengeDetailScreen}
-  options={{ title: 'Challenge Detail (Temp)' }}
-/> */}
+
   <Drawer.Screen
     name="ChallengeDetail"
     component={ChallengeDetailScreen}
     options={{ drawerItemStyle: { display: 'none' } }}
   />
+ 
 
     </Drawer.Navigator>
   );

@@ -2,6 +2,7 @@ export type RootStackParamList = {
   Login: undefined;
   Register: undefined;
    MainDrawer: undefined; // ✅ New root
+   TodoModule: undefined;
   Home: undefined;
   Friends: undefined;
   AddFriend: undefined;  // or params if needed, but here undefined

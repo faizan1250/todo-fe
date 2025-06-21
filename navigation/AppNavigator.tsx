@@ -1,4 +1,3 @@
-
 // navigation/AppNavigator.tsx
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -9,9 +8,10 @@ import FriendsScreen from '../screens/FriendsScreen';
 import AddFriendScreen from '../screens/AddFriendScreen';
 import NicknameModal from '../screens/NicknameModal';
 import MainDrawer from './MainDrawer';
-import ChallengeDetailScreen from '../screens/ChallengeDetailScreen'; // Import here
+import ChallengeDetailScreen from '../screens/ChallengeDetailScreen';
 import { useAuth } from '../context/AuthContext';
 import { RootStackParamList } from './types';
+import TodoDrawerNavigator from './TodoDrawerNavigator';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -19,23 +19,20 @@ export default function AppNavigator() {
   const { token } = useAuth();
 
   return (
-    <Stack.Navigator
-      screenOptions={{
-        headerShown: true,
-        headerTitleStyle: { fontFamily: 'PressStart2P', fontSize: 12, color: '#00ffcc' },
-        headerStyle: { backgroundColor: '#0e0e0e' },
-        headerTintColor: '#00ffcc',
-      }}
-    >
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
       {token ? (
         <>
-          {/* Hide header on drawer root since drawer manages its own header */}
-          <Stack.Screen name="MainDrawer" component={MainDrawer} options={{ headerShown: false }} />
+          {/* Main app with drawer navigation */}
+          <Stack.Screen name="MainDrawer" component={MainDrawer} />
+
+          {/* Independent Todo module with its own drawer/header */}
+          <Stack.Screen name="TodoModule" component={TodoDrawerNavigator} />
+
+          {/* Modals and other screens */}
           <Stack.Screen name="Friends" component={FriendsScreen} />
           <Stack.Screen name="AddFriend" component={AddFriendScreen} options={{ presentation: 'modal' }} />
           <Stack.Screen name="NicknameModal" component={NicknameModal} options={{ presentation: 'modal' }} />
 
-          {/* ChallengeDetail outside drawer for stack navigation */}
           {/* <Stack.Screen
             name="ChallengeDetail"
             component={ChallengeDetailScreen}
@@ -51,5 +48,4 @@ export default function AppNavigator() {
     </Stack.Navigator>
   );
 }
-
 

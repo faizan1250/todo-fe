@@ -6,15 +6,18 @@ import {
 } from 'react-native';
 import { useAuth } from '../context/AuthContext';
 import { DrawerNavigationProp } from '@react-navigation/drawer';
-import { useNavigation, NavigationProp } from '@react-navigation/native';
+import { useNavigation, NavigationProp, useRoute } from '@react-navigation/native';
 import { RootDrawerParamList, RootStackParamList } from '../navigation/types';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axiosInstance from '../api/AxiosInstance';
+import FABMenu from '../components/FABMenu'; // adjust path if needed
+
 
 export default function HomeScreen() {
+  const route = useRoute();
   type CombinedNavigationProp = DrawerNavigationProp<RootDrawerParamList> & NavigationProp<RootStackParamList>;
   const navigation = useNavigation<CombinedNavigationProp>();
 
@@ -25,6 +28,8 @@ export default function HomeScreen() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [filter, setFilter] = useState<'All' | 'Active' | 'Completed'>('All');
+  const [fabOpen, setFabOpen] = useState(false);
+
 interface Participant {
   user: string | {
     _id: string;
@@ -68,28 +73,52 @@ const totalPossiblePoints = challenges.reduce(
     fetchChallenges();
   }, [token]);
 
-  useLayoutEffect(() => {
-    navigation.setOptions({
-      headerTitle: () => (
-        <Text style={{ fontSize: 16, fontWeight: '700', color: '#26dbc3' }}>Timero</Text>
-      ),
-      headerLeft: () => (
-        <TouchableOpacity onPress={() => navigation.toggleDrawer()} style={{ paddingHorizontal: 16 }}>
-          <Ionicons name="menu" size={24} color="#26dbc3" />
-        </TouchableOpacity>
-      ),
-      headerRight: () => (
-        <TouchableOpacity onPress={() => setShowProfilePopup(true)} style={{ paddingHorizontal: 16 }}>
-          {user?.profilePicUrl ? (
-            <Image source={{ uri: user.profilePicUrl }} style={styles.avatar} />
-          ) : (
-            <Ionicons name="person-circle-outline" size={28} color="#26dbc3" />
-          )}
-        </TouchableOpacity>
-      ),
-    });
-  }, [navigation, user]);
+  // useLayoutEffect(() => {
+  //   navigation.setOptions({
+  //     headerTitle: () => (
+  //       <Text style={{ fontSize: 16, fontWeight: '700', color: '#26dbc3' }}>Timero</Text>
+  //     ),
+  //     headerLeft: () => (
+  //       <TouchableOpacity onPress={() => navigation.toggleDrawer()} style={{ paddingHorizontal: 16 }}>
+  //         <Ionicons name="menu" size={24} color="#26dbc3" />
+  //       </TouchableOpacity>
+  //     ),
+  //     headerRight: () => (
+  //       <TouchableOpacity onPress={() => setShowProfilePopup(true)} style={{ paddingHorizontal: 16 }}>
+  //         {user?.profilePicUrl ? (
+  //           <Image source={{ uri: user.profilePicUrl }} style={styles.avatar} />
+  //         ) : (
+  //           <Ionicons name="person-circle-outline" size={28} color="#26dbc3" />
+  //         )}
+  //       </TouchableOpacity>
+  //     ),
+  //   });
+  // }, [navigation, user]);
 
+
+useLayoutEffect(() => {
+  if (route.name !== 'Home') return; // ✅ only apply on Home screen inside MainDrawer
+
+  navigation.setOptions({
+    headerTitle: () => (
+      <Text style={{ fontSize: 16, fontWeight: '700', color: '#26dbc3' }}>Timero</Text>
+    ),
+    headerLeft: () => (
+      <TouchableOpacity onPress={() => navigation.toggleDrawer()} style={{ paddingHorizontal: 16 }}>
+        <Ionicons name="menu" size={24} color="#26dbc3" />
+      </TouchableOpacity>
+    ),
+    headerRight: () => (
+      <TouchableOpacity onPress={() => setShowProfilePopup(true)} style={{ paddingHorizontal: 16 }}>
+        {user?.profilePicUrl ? (
+          <Image source={{ uri: user.profilePicUrl }} style={styles.avatar} />
+        ) : (
+          <Ionicons name="person-circle-outline" size={28} color="#26dbc3" />
+        )}
+      </TouchableOpacity>
+    ),
+  });
+}, [navigation, route.name, user]);
   const pickImageAndUpload = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
@@ -185,12 +214,7 @@ const totalPossiblePoints = challenges.reduce(
         />
       )}
 
-      <TouchableOpacity
-        style={styles.floatingButton}
-        onPress={() => navigation.navigate('CreateChallenge')}
-      >
-        <Ionicons name="add" size={28} color="#0e0e0e" />
-      </TouchableOpacity>
+     
 
       {showProfilePopup && (
         <View style={styles.popupOverlay}>
@@ -213,6 +237,49 @@ const totalPossiblePoints = challenges.reduce(
           </View>
         </View>
       )}
+   
+{/* Floating Actions */}
+{/* <View style={styles.fabContainer}>
+  {fabOpen && (
+    <>
+      <TouchableOpacity
+        style={styles.fabOption}
+        onPress={() => {
+          setFabOpen(false);
+          navigation.navigate('CreateChallenge');
+        }}
+      >
+        <Ionicons name="add-circle-outline" size={20} color="#0e0e0e" />
+        <Text style={styles.fabOptionText}>New Challenge</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={styles.fabOption}
+        onPress={() => {
+          setFabOpen(false);
+          navigation.reset({
+            index: 0,
+            routes: [{ name: 'TodoModule' }],
+          });
+        }}
+      >
+        <Ionicons name="checkbox-outline" size={20} color="#0e0e0e" />
+        <Text style={styles.fabOptionText}>Todos</Text>
+      </TouchableOpacity>
+    </>
+  )}
+
+  <TouchableOpacity
+    style={styles.fabMain}
+    onPress={() => setFabOpen((prev) => !prev)}
+  >
+    <Ionicons name={fabOpen ? 'close' : 'add'} size={28} color="#0e0e0e" />
+  </TouchableOpacity>
+</View> */}
+   <FABMenu />
+
+
+
     </View>
   );
 }
@@ -230,15 +297,41 @@ const styles = StyleSheet.create({
   challengeCard: { backgroundColor: '#1a1a1a', marginHorizontal: 16, marginVertical: 6, padding: 14, borderRadius: 8 },
   challengeTitle: { color: '#fff', fontSize: 14, fontWeight: '600', marginBottom: 4 },
   challengeStatus: { fontSize: 12 },
-  floatingButton: {
-    position: 'absolute',
-    bottom: 30,
-    right: 20,
-    backgroundColor: '#26dbc3',
-    borderRadius: 30,
-    padding: 14,
-    elevation: 6,
-  },
+ fabContainer: {
+  position: 'absolute',
+  bottom: 30,
+  right: 20,
+  alignItems: 'flex-end',
+},
+
+fabMain: {
+  backgroundColor: '#26dbc3',
+  padding: 16,
+  borderRadius: 30,
+  elevation: 6,
+  justifyContent: 'center',
+  alignItems: 'center',
+},
+
+fabOption: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  backgroundColor: '#26dbc3',
+  paddingVertical: 8,
+  paddingHorizontal: 12,
+  borderRadius: 20,
+  marginBottom: 10,
+  elevation: 5,
+},
+
+fabOptionText: {
+  color: '#0e0e0e',
+  fontWeight: '600',
+  marginLeft: 8,
+  fontSize: 12,
+},
+
+
   popupOverlay: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.8)', justifyContent: 'center', alignItems: 'center' },
   popup: { backgroundColor: '#1a1a1a', padding: 24, borderRadius: 12, width: '80%', alignItems: 'center' },
   popupPic: { width: 70, height: 70, borderRadius: 35, marginBottom: 12 },
@@ -253,6 +346,8 @@ const styles = StyleSheet.create({
   marginBottom: 10,
   fontWeight: '600',
 },
+
+
 
 });
 
