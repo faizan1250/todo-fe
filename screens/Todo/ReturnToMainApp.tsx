@@ -1,15 +1,18 @@
-import React, { useEffect } from 'react';
-import { useNavigation } from '@react-navigation/native';
-import { StackActions } from '@react-navigation/native';
+
+import { useNavigation, CommonActions } from '@react-navigation/native';
+import { useEffect } from 'react';
 
 export default function ReturnToMainApp() {
   const navigation = useNavigation();
 
   useEffect(() => {
     navigation.dispatch(
-      StackActions.replace('MainDrawer') // ⬅️ resets to main app drawer
+      CommonActions.reset({
+        index: 0,
+        routes: [{ name: 'MainDrawer' }],
+      })
     );
   }, [navigation]);
 
-  return null; // No UI needed
+  return null;
 }
