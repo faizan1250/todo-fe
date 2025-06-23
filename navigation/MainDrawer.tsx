@@ -11,6 +11,8 @@ import CreateChallengeScreen from '../screens/CreateChallengeScreen';
 import ChallengeDetailScreen from '../screens/ChallengeDetailScreen';
 import StatsScreen from '../screens/StatsScreen';
 import TodoStackNavigator from './TodoStackNavigator';
+import EditChallengeScreen from '../screens/EditChallengeScreen';
+import LeaderboardScreen from '../screens/LeaderboardScreen';
 
 import { Ionicons } from '@expo/vector-icons';
 
@@ -42,12 +44,19 @@ export default function MainDrawer() {
       <Drawer.Screen name="Home" component={HomeScreen} />
       
       <Drawer.Screen name="Deen" component={DeenScreen} />
+      <Drawer.Screen name="Leaderboard" component={LeaderboardScreen} />
 
       <Drawer.Screen name="Challenges" component={ChallengeListScreen} />
       {/* <Drawer.Screen name="CreateChallenge" component={CreateChallengeScreen} /> */}
         <Drawer.Screen
     name="CreateChallenge"
     component={CreateChallengeScreen}
+    options={{ drawerItemStyle: { display: 'none' } }}
+  />
+     
+        <Drawer.Screen
+    name="EditChallenge"
+    component={EditChallengeScreen}
     options={{ drawerItemStyle: { display: 'none' } }}
   />
       <Drawer.Screen name="Stats" component={StatsScreen} />

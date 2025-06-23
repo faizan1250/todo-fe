@@ -9,7 +9,23 @@ export type RootStackParamList = {
   NicknameModal:  { friendId: string };
   ChallengeDetail: { challengeId: string };
   ChallengeList: undefined;  
-    CreateChallenge: undefined;   
+    CreateChallenge: undefined; 
+  EditChallenge: {
+  challenge: {
+    _id: string;
+    title: string;
+    description?: string;
+    totalHours: number;
+    durationDays: number;
+    totalPoints: number;
+    startDate: string;
+    hashtags?: string[];
+    status: string;
+    creator: string | { _id: string; name?: string }; 
+  };
+};
+
+
  
 };
 
@@ -19,3 +35,20 @@ export type RootDrawerParamList = {
   Deen: undefined;
   // add other drawer routes if any
 };
+export type EditChallengeParamList = {
+  EditChallenge: {
+    challenge: {
+      _id: string;
+      title: string;
+      description?: string;
+      totalHours: number;
+      durationDays: number;
+      totalPoints: number;
+      startDate: string;
+      hashtags?: string[];
+      status: string;
+      creator: string;
+    };
+  };
+};
+

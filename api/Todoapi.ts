@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE = 'https://todo-backend-kfpi.onrender.com/api/todos'; // Replace with your actual URL
+const API_BASE = 'http://192.168.136.156:5000/api/todos'; // Replace with your actual URL
 
 // --- Types ---
 export interface Subtask {

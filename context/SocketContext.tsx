@@ -29,7 +29,7 @@ export const SocketProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
   useEffect(() => {
     if (user && token) {
-      const newSocket = io('https://todo-backend-kfpi.onrender.com', {
+      const newSocket = io('http://192.168.136.156:5000', {
         transports: ['websocket'],
         auth: { token },
       });

@@ -40,7 +40,7 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const instance = axios.create({
-  baseURL: 'https://todo-backend-kfpi.onrender.com/api',
+  baseURL: 'http://192.168.136.156:5000/api',
   // DO NOT set 'Content-Type' here globally
 });
 

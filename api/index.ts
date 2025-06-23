@@ -2,7 +2,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'https://todo-backend-kfpi.onrender.com/api', // Change to your backend IP when testing on device
+  baseURL: 'http://192.168.136.156:5000/api', // Change to your backend IP when testing on device
   timeout: 5000,
 });
 
