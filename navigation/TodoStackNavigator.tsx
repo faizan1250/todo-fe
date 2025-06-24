@@ -3,13 +3,14 @@ import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import TodoHome from '../screens/Todo/TodoHome';
 import CreateTodo from '../screens/Todo/CreateTodo';
-
+import TodoDetailsScreen from '../screens/Todo/TodoDetailsScreen';
 export type TodoStackParamList = {
   TodoHome: undefined;
   CreateTodo: undefined;
   EditTodo: { todoId: string };
   TodoCalendar: undefined;
   TodoStats: undefined;
+ TodoDetails: { todoId: string };
 };
 
 const Stack = createNativeStackNavigator<TodoStackParamList>();
@@ -39,6 +40,11 @@ export default function TodoStackNavigator() {
         component={CreateTodo}
         options={{ title: 'New Task' }}
       />
+      <Stack.Screen 
+  name="TodoDetails" 
+  component={TodoDetailsScreen} 
+  options={{ title: 'Todo Details' }}
+/>
     </Stack.Navigator>
   );
 }

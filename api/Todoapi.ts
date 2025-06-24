@@ -8,6 +8,41 @@ export interface Subtask {
   done: boolean;
 }
 
+// export interface Todo {
+//   _id?: string;
+//   userId?: string;
+//   title: string;
+//   description?: string;
+//   dueDate?: string;
+//   priority?: 'low' | 'medium' | 'high';
+//   status?: 'todo' | 'in-progress' | 'done' | 'archived';
+//   tags?: string[];
+//   startTime?: string;
+//   endTime?: string;
+//   subtasks?: Subtask[];
+//   repeatInterval?: 'none' | 'daily' | 'weekly' | 'monthly';
+//   reminder?: string;
+//   isStarred?: boolean;
+//   assignedPoints?: number;
+//   category:string;
+//   createdAt?: string;
+//   joinCode?: string;
+//   updatedAt?: string;
+// }
+export interface Completion {
+  userId: {
+    _id: string;
+    name: string;
+  };
+  completedAt: string;
+  pointsEarned: number;
+}
+
+export interface Participant {
+  _id: string;
+  name: string;
+}
+
 export interface Todo {
   _id?: string;
   userId?: string;
@@ -24,9 +59,12 @@ export interface Todo {
   reminder?: string;
   isStarred?: boolean;
   assignedPoints?: number;
-  category:string;
+  category: string;
   createdAt?: string;
+  joinCode?: string;
   updatedAt?: string;
+  participants?: Participant[];
+  completions?: Completion[];
 }
 
 export interface TodoFilters {
@@ -38,6 +76,10 @@ export interface TodoFilters {
   sort?: string;
   order?: 'asc' | 'desc';
   limit?: number;
+}
+interface CreateTodoResponse {
+  todo: Todo;
+  joinCode?: string;
 }
 
 // --- API Helper ---
@@ -52,9 +94,12 @@ export const fetchTodos = async (filters: TodoFilters = {}, token?: string): Pro
   return res.data;
 };
 
-export const createTodo = async (data: Todo, token: string): Promise<Todo> => {
+export const createTodo = async (data: Todo, token: string): Promise<{ todo: Todo; joinCode?: string }> => {
   const res = await axios.post(API_BASE, data, authHeader(token));
-  return res.data;
+  return {
+    todo: res.data,
+    joinCode: res.data?.joinCode,
+  };
 };
 
 export const updateTodo = async (id: string, updates: Partial<Todo>, token: string): Promise<Todo> => {
@@ -98,7 +143,7 @@ export const getTodosByCalendarRange = async (
   to: string,
   token: string
 ): Promise<{ [date: string]: Todo[] }> => {
-  const res = await axios.get(`https://todo-backend-kfpi.onrender.com/api/todos/calendar`, {
+  const res = await axios.get(`http://192.168.136.156:5000/api/todos/calendar`, {
     params: { from, to },
     headers: {
       Authorization: `Bearer ${token}`,
@@ -107,3 +152,41 @@ export const getTodosByCalendarRange = async (
   return res.data;
 };
 
+export const joinTodoByCode = async (
+  code: string,
+  token: string
+): Promise<{ message: string; todo: Todo }> => {
+  const res = await axios.post(`${API_BASE}/join`, { code }, authHeader(token));
+  return res.data;
+};
+// export const fetchTodoDetails = async (todoId: string, token: string): Promise<Todo> => {
+//   const response = await axios.get(`${API_BASE}/todos/${todoId}`, {
+//     headers: { Authorization: `Bearer ${token}` },
+//   });
+//   return response.data;
+// };
+// In your api/Todoapi.ts file, add:
+export const fetchTodoDetails = async (todoId: string, token: string): Promise<Todo> => {
+  const response = await axios.get(`${API_BASE}/${todoId}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return response.data;
+};
+
+export const updateTodoStatus = async (
+  id: string, 
+  status: 'todo' | 'in-progress' | 'done' | 'archived',
+  token: string
+): Promise<Todo> => {
+  const response = await axios.patch(
+    `${API_BASE}/${id}/status`,
+    { status },
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+  return response.data;
+};
+
+export const addParticipant = async (todoId: string, joinCode: string, token: string): Promise<Todo> => {
+  const res = await axios.post(`${API_BASE}/${todoId}/participants`, { joinCode }, authHeader(token));
+  return res.data;
+};
