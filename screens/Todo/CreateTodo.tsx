@@ -418,7 +418,7 @@ export default function CreateTodo() {
 
         <Text style={styles.label}>Status</Text>
         <View style={styles.priorityRow}>
-          {['todo', 'in-progress', 'done', 'archived'].map(s => (
+          {['todo', 'in-progress', 'done'].map(s => (
             <TouchableOpacity
               key={s}
               style={[
@@ -434,7 +434,7 @@ export default function CreateTodo() {
 
         <Text style={styles.label}>Repeat</Text>
         <View style={styles.priorityRow}>
-          {['none', 'daily', 'weekly', 'monthly'].map(p => (
+          {['none', 'repeat'].map(p => (
             <TouchableOpacity
               key={p}
               style={[

@@ -77,7 +77,7 @@ export default function HomeScreen() {
   const [challenges, setChallenges] = useState<ChallengeItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [filter, setFilter] = useState<'All' | 'Active' | 'Completed'>('All');
+  const [filter, setFilter] = useState<'All' | 'Active' | 'Completed'>('Active');
   const [stats, setStats] = useState<StatsData | null>(null);
   const [leaderboard, setLeaderboard] = useState<LeaderboardData | null>(null);
   const [leaderboardLoading, setLeaderboardLoading] = useState(false);

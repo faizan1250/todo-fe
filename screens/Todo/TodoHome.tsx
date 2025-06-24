@@ -26,7 +26,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import NavHome from '../../components/NavHome';
 
-const STATUS_TABS = ['All', 'Todo', 'In-Progress', 'Done', 'Archived'];
+const STATUS_TABS = ['All', 'Todo', 'In-Progress', 'Done'];
 const PRIORITY_COLORS = {
   low: '#4ade80',
   medium: '#facc15',
@@ -36,7 +36,7 @@ const PRIORITY_COLORS = {
 export default function TodoHome() {
   const navigation = useNavigation<NativeStackNavigationProp<TodoStackParamList>>();
   const { token } = useAuth();
-  const [selectedTab, setSelectedTab] = useState('All');
+  const [selectedTab, setSelectedTab] = useState('Todo');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [todos, setTodos] = useState<Todo[]>([]);
   const [loading, setLoading] = useState(true);
@@ -71,9 +71,14 @@ export default function TodoHome() {
   const restoreFilters = async () => {
     const storedTab = await AsyncStorage.getItem('todoTab');
     const storedCat = await AsyncStorage.getItem('todoCategory');
+     setSelectedTab(storedTab || 'Todo');
     if (storedTab) setSelectedTab(storedTab);
     if (storedCat) setSelectedCategory(storedCat);
   };
+  const isExpired = (todo: Todo) => {
+  return todo.endTime && new Date(todo.endTime) < new Date() && todo.status !== 'done';
+};
+
 
   const saveFilters = async () => {
     await AsyncStorage.setItem('todoTab', selectedTab);
@@ -194,7 +199,13 @@ export default function TodoHome() {
               style={{ marginRight: 10 }}
             />
             <View>
-              <Text style={styles.todoTitle}>{item.title}</Text>
+              <Text style={[
+  styles.todoTitle,
+  isExpired(item) && { textDecorationLine: 'line-through', color: '#666' }
+]}>
+  {item.title}
+</Text>
+
               <Text style={styles.todoMeta}>
                 {item.startTime ? `${new Date(item.startTime).toLocaleTimeString()} - ` : ''}
                 {item.endTime ? new Date(item.endTime).toLocaleTimeString() : '—'}

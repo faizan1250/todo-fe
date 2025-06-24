@@ -35,11 +35,12 @@ const PRIORITY_COLORS = {
 };
 
 const STATUS_OPTIONS = [
-  { value: 'todo' as const, label: 'To Do', icon: 'checkbox-outline' as const },
-  { value: 'in-progress' as const, label: 'In Progress', icon: 'time-outline' as const },
-  { value: 'done' as const, label: 'Done', icon: 'checkmark-done-outline' as const },
-  { value: 'archived' as const, label: 'Archived', icon: 'archive-outline' as const },
+  { value: 'todo' as const, label: 'To Do', icon: 'checkbox-outline' },
+  { value: 'in-progress' as const, label: 'In Progress', icon: 'time-outline' },
+  { value: 'done' as const, label: 'Done', icon: 'checkmark-done-outline' },
+ 
 ];
+
 export default function TodoDetailsScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<TodoStackParamList>>();
   const { token, user } = useAuth();
@@ -69,34 +70,29 @@ export default function TodoDetailsScreen() {
     }
   };
 
-//   const handleStatusChange = async (status: 'todo' | 'in-progress' | 'done' | 'archived') => {
-//     if (!token || !todo) return;
-//     try {
-//       await apiUpdateTodoStatus(todo._id!, status, token);
-//       setTodo({ ...todo, status });
-//       Alert.alert('Success', 'Status updated!');
-//     } catch (err) {
-//       console.error('Failed to update status', err);
-//       Alert.alert('Error', 'Failed to update status');
-//     }
-//   };
-const handleStatusChange = async (status: 'todo' | 'in-progress' | 'done' | 'archived') => {
+
+const handleStatusChange = async (status: 'todo' | 'in-progress' | 'done') => {
   if (!token || !todo) return;
+
+  const now = new Date();
+  const endTime = new Date(todo.endTime || '');
+
+  // 🔒 Block all status changes if endTime has passed
+  if (now > endTime) {
+    return Alert.alert('Time Expired', 'You cannot update this todo anymore. Time window has passed.');
+  }
+
   try {
-    const updatedTodo = await apiUpdateTodoStatus(todo._id!, status, token);
-    setTodo(updatedTodo);
-    
-    // Show success message only after state updates
-    if (status === 'done') {
-      Alert.alert('Success', `Task completed! +${todo.assignedPoints || 0} points`);
-    } else {
-      Alert.alert('Success', 'Status updated!');
-    }
-  } catch (err) {
+    const res = await apiUpdateTodoStatus(todo._id!, status, token);
+    setTodo(res.todo);
+    Alert.alert('Success', res.message || 'Status updated!');
+  } catch (err: any) {
     console.error('Failed to update status', err);
-    Alert.alert('Error', 'Failed to update status');
+    Alert.alert('Error', err?.response?.data?.error || 'Failed to update status');
   }
 };
+
+
   const handleJoinTodo = async () => {
     if (!token || !joinCodeInput) return;
     setJoining(true);
@@ -177,28 +173,47 @@ const handleStatusChange = async (status: 'todo' | 'in-progress' | 'done' | 'arc
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Status</Text>
         <View style={styles.statusContainer}>
-          {STATUS_OPTIONS.map((option) => (
-            <TouchableOpacity
-              key={option.value}
-              style={[
-                styles.statusOption,
-                todo.status === option.value && styles.statusOptionActive
-              ]}
-              onPress={() => handleStatusChange(option.value)}
-            >
-              <Ionicons 
-                name={option.icon} 
-                size={20} 
-                color={todo.status === option.value ? '#26dbc3' : '#888'} 
-              />
-              <Text style={[
-                styles.statusText,
-                todo.status === option.value && styles.statusTextActive
-              ]}>
-                {option.label}
-              </Text>
-            </TouchableOpacity>
-          ))}
+         {STATUS_OPTIONS.map((option) => {
+  const now = new Date();
+const endTime = new Date(todo.endTime || '');
+const isExpired = now > endTime;
+
+const disabled = isExpired || todo.status === option.value;
+
+  const outOfTimeWindow = option.value === 'done' &&
+    (now < new Date(todo.startTime || '') || now > new Date(todo.endTime || ''));
+
+const isDisabled = isExpired || (option.value === todo.status);
+
+
+  return (
+    <TouchableOpacity
+      key={option.value}
+      style={[
+        styles.statusOption,
+        todo.status === option.value && styles.statusOptionActive,
+        isDisabled && { opacity: 0.3 }
+      ]}
+      onPress={() => !isDisabled && handleStatusChange(option.value)}
+      disabled={isDisabled}
+    >
+      <Ionicons
+        name={option.icon as any} 
+        size={20}
+        color={todo.status === option.value ? '#26dbc3' : '#888'}
+      />
+      <Text
+        style={[
+          styles.statusText,
+          todo.status === option.value && styles.statusTextActive
+        ]}
+      >
+        {option.label}
+      </Text>
+    </TouchableOpacity>
+  );
+})}
+
         </View>
       </View>
 
@@ -287,6 +302,15 @@ const handleStatusChange = async (status: 'todo' | 'in-progress' | 'done' | 'arc
           <Text style={styles.noCompletions}>No completion history yet</Text>
         )}
       </View>
+      <View style={styles.detailRow}>
+  <Ionicons name="repeat-outline" size={20} color="#26dbc3" />
+  <Text>
+  Repeats: {todo.repeatInterval ? (
+    todo.repeatInterval !== 'none' ? todo.repeatInterval.toUpperCase() : 'No'
+  ) : 'Unknown'}
+</Text>
+
+</View>
     </ScrollView>
   );
 }

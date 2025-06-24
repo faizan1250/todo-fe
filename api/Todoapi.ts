@@ -77,6 +77,7 @@ export interface TodoFilters {
   order?: 'asc' | 'desc';
   limit?: number;
 }
+
 interface CreateTodoResponse {
   todo: Todo;
   joinCode?: string;
@@ -159,13 +160,7 @@ export const joinTodoByCode = async (
   const res = await axios.post(`${API_BASE}/join`, { code }, authHeader(token));
   return res.data;
 };
-// export const fetchTodoDetails = async (todoId: string, token: string): Promise<Todo> => {
-//   const response = await axios.get(`${API_BASE}/todos/${todoId}`, {
-//     headers: { Authorization: `Bearer ${token}` },
-//   });
-//   return response.data;
-// };
-// In your api/Todoapi.ts file, add:
+
 export const fetchTodoDetails = async (todoId: string, token: string): Promise<Todo> => {
   const response = await axios.get(`${API_BASE}/${todoId}`, {
     headers: { Authorization: `Bearer ${token}` },
@@ -173,16 +168,24 @@ export const fetchTodoDetails = async (todoId: string, token: string): Promise<T
   return response.data;
 };
 
+// export const updateTodoStatus = async (
+//   id: string, 
+//   status: 'todo' | 'in-progress' | 'done' | 'archived',
+//   token: string
+// ): Promise<Todo> => {
+//   const response = await axios.patch(
+//     `${API_BASE}/${id}/status`,
+//     { status },
+//     { headers: { Authorization: `Bearer ${token}` } }
+//   );
+//   return response.data;
+// };
 export const updateTodoStatus = async (
-  id: string, 
+  id: string,
   status: 'todo' | 'in-progress' | 'done' | 'archived',
   token: string
-): Promise<Todo> => {
-  const response = await axios.patch(
-    `${API_BASE}/${id}/status`,
-    { status },
-    { headers: { Authorization: `Bearer ${token}` } }
-  );
+): Promise<{ message: string; pointsEarned: number; todo: Todo }> => {
+  const response = await axios.patch(`${API_BASE}/${id}/status`, { status }, authHeader(token));
   return response.data;
 };
 
