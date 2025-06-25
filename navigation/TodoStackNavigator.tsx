@@ -11,6 +11,7 @@ export type TodoStackParamList = {
   TodoCalendar: undefined;
   TodoStats: undefined;
  TodoDetails: { todoId: string };
+   Leaderboard: undefined; // ✅ add this line
 };
 
 const Stack = createNativeStackNavigator<TodoStackParamList>();

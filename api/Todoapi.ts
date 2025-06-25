@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE = 'http://192.168.136.156:5000/api/todos'; // Replace with your actual URL
+export const API_BASE = 'http://192.168.136.156:5000/api/todos'; // Replace with your actual URL
 
 // --- Types ---
 export interface Subtask {
@@ -191,5 +191,18 @@ export const updateTodoStatus = async (
 
 export const addParticipant = async (todoId: string, joinCode: string, token: string): Promise<Todo> => {
   const res = await axios.post(`${API_BASE}/${todoId}/participants`, { joinCode }, authHeader(token));
+  return res.data;
+};
+
+export const completeTodo = async (
+  id: string,
+  token: string,
+  revert = false
+): Promise<{ message: string; todo: Todo }> => {
+  const res = await axios.post(
+    `${API_BASE}/${id}/complete`,
+    revert ? { revert: true } : {},
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
   return res.data;
 };

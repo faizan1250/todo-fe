@@ -16,7 +16,8 @@ import { useAuth } from '../../context/AuthContext';
 import { 
   fetchTodoDetails, 
   updateTodoStatus as apiUpdateTodoStatus, 
-  addParticipant as apiAddParticipant 
+  addParticipant as apiAddParticipant, 
+  completeTodo
 } from '../../api/Todoapi';
 import type { Todo, Participant, Completion } from '../../api/Todoapi';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -71,27 +72,66 @@ export default function TodoDetailsScreen() {
   };
 
 
-const handleStatusChange = async (status: 'todo' | 'in-progress' | 'done') => {
-  if (!token || !todo) return;
+const handleStatusChange = async (
+  targetStatus: 'todo' | 'in-progress' | 'done'
+) => {
+  if (!token || !todo || !user) return;
 
   const now = new Date();
-  const endTime = new Date(todo.endTime || '');
-
-  // 🔒 Block all status changes if endTime has passed
-  if (now > endTime) {
-    return Alert.alert('Time Expired', 'You cannot update this todo anymore. Time window has passed.');
+  if (now > new Date(todo.endTime ?? '')) {
+    return Alert.alert(
+      'Time Expired',
+      'You cannot update this todo anymore.'
+    );
   }
 
+  const isShared     = (todo.participants?.length ?? 0) > 1;
+  const alreadyDone  =
+    todo.completions?.some(c => c.userId._id === user.id) ?? false;
+
   try {
-    const res = await apiUpdateTodoStatus(todo._id!, status, token);
+    // helper for the /complete endpoint (mark or revert)
+    const complete = async (revert = false) =>
+      await completeTodo(todo._id!, token, revert); // see util update below ✨
+
+    let res;
+
+    /* ------------------------------------------------------------------ */
+    /* --------------------------  SHARED TODO  ------------------------- */
+    /* ------------------------------------------------------------------ */
+    if (isShared) {
+      if (targetStatus === 'done') {
+        // Mark or revert personal completion
+        res = await complete(alreadyDone /* revert? */);
+      } else {
+        // Going to todo / in-progress -------------------------------
+        if (alreadyDone) {
+          // 1️⃣ first get rid of the personal completion
+          await complete(true /* revert */);
+        }
+        // 2️⃣ then update the shared phase
+        res = await apiUpdateTodoStatus(todo._id!, targetStatus, token);
+      }
+    }
+
+    /* ------------------------------------------------------------------ */
+    /* ---------------------------  SOLO TODO  -------------------------- */
+    /* ------------------------------------------------------------------ */
+    else {
+      // Solo todos are handled entirely by /status
+      res = await apiUpdateTodoStatus(todo._id!, targetStatus, token);
+    }
+
     setTodo(res.todo);
     Alert.alert('Success', res.message || 'Status updated!');
   } catch (err: any) {
     console.error('Failed to update status', err);
-    Alert.alert('Error', err?.response?.data?.error || 'Failed to update status');
+    Alert.alert(
+      'Error',
+      err?.response?.data?.error || 'Failed to update status'
+    );
   }
 };
-
 
   const handleJoinTodo = async () => {
     if (!token || !joinCodeInput) return;
@@ -172,49 +212,61 @@ const handleStatusChange = async (status: 'todo' | 'in-progress' | 'done') => {
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Status</Text>
-        <View style={styles.statusContainer}>
-         {STATUS_OPTIONS.map((option) => {
-  const now = new Date();
-const endTime = new Date(todo.endTime || '');
-const isExpired = now > endTime;
+     /* ------------ Status buttons (fully updated) ------------ */
+<View style={styles.statusContainer}>
+  {STATUS_OPTIONS.map(option => {
+    const now        = new Date();
+    const expired    = now > new Date(todo.endTime ?? '');
 
-const disabled = isExpired || todo.status === option.value;
+    /* 🟢 Has THIS user already completed? */
+    const userDone =
+      todo.completions?.some(c => c.userId._id === user?.id) ?? false;
 
-  const outOfTimeWindow = option.value === 'done' &&
-    (now < new Date(todo.startTime || '') || now > new Date(todo.endTime || ''));
+    /* 🔑 Active-button logic
+       1. If I have a completion → ONLY “Done” is active
+       2. Otherwise             → follow the shared todo.status
+    */
+    const isActive =
+      userDone ? option.value === 'done'
+               : todo.status === option.value;
 
-const isDisabled = isExpired || (option.value === todo.status);
+    /* 🚫 Disable logic
+       - Disable everything when expired
+       - Disable the already-active button (except “Done”, so we can revert)
+    */
+    const isDisabled =
+      expired || (option.value !== 'done' && isActive);
 
-
-  return (
-    <TouchableOpacity
-      key={option.value}
-      style={[
-        styles.statusOption,
-        todo.status === option.value && styles.statusOptionActive,
-        isDisabled && { opacity: 0.3 }
-      ]}
-      onPress={() => !isDisabled && handleStatusChange(option.value)}
-      disabled={isDisabled}
-    >
-      <Ionicons
-        name={option.icon as any} 
-        size={20}
-        color={todo.status === option.value ? '#26dbc3' : '#888'}
-      />
-      <Text
+    return (
+      <TouchableOpacity
+        key={option.value}
         style={[
-          styles.statusText,
-          todo.status === option.value && styles.statusTextActive
+          styles.statusOption,
+          isActive && styles.statusOptionActive,
+          isDisabled && { opacity: 0.3 },
         ]}
+        onPress={() => !isDisabled && handleStatusChange(option.value)}
+        disabled={isDisabled}
       >
-        {option.label}
-      </Text>
-    </TouchableOpacity>
-  );
-})}
+        <Ionicons
+          name={option.icon as any}
+          size={20}
+          color={isActive ? '#26dbc3' : '#888'}
+        />
+        <Text
+          style={[
+            styles.statusText,
+            isActive && styles.statusTextActive,
+          ]}
+        >
+          {option.label}
+        </Text>
+      </TouchableOpacity>
+    );
+  })}
+</View>
+/* ------------ end Status buttons ----------------------- */
 
-        </View>
       </View>
 
       {todo.subtasks && todo.subtasks.length > 0 && (

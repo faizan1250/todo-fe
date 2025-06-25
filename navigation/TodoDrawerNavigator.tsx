@@ -52,6 +52,7 @@ import ReturnToMainApp from '../screens/Todo/ReturnToMainApp';
 import CreateTodo from '../screens/Todo/CreateTodo';
 import TodoCalendar from '../screens/Todo/TodoCalendar';
 import TodoStats from '../screens/Todo/TodoStats';
+import LeaderboardScreen from '../screens/Todo/LeaderboardScreen'; // adjust path if needed
 
 
 const Drawer = createDrawerNavigator();
@@ -94,6 +95,17 @@ export default function TodoDrawerNavigator() {
           ),
         }}
       />
+      <Drawer.Screen
+  name="Leaderboard"
+  component={LeaderboardScreen}
+  options={{
+    title: 'Leaderboard',
+    drawerIcon: ({ color, size }) => (
+      <Ionicons name="trophy-outline" size={size} color={color} />
+    ),
+  }}
+/>
+
 
       <Drawer.Screen
         name="TodoCalendar"
